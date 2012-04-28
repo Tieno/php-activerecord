@@ -341,7 +341,9 @@ class Model
 	 */
 	public function __isset($attribute_name)
 	{
-		return array_key_exists($attribute_name,$this->attributes) || array_key_exists($attribute_name,static::$alias_attribute);
+	    return array_key_exists($attribute_name,$this->attributes) 
+	        || array_key_exists($attribute_name,static::$alias_attribute)
+	        || method_exists($this, "attributes");
 	}
 
 	/**
@@ -1100,13 +1102,19 @@ class Model
 	 */
 	public function set_timestamps()
 	{
-		$now = date('Y-m-d H:i:s');
+	    $now = date('Y-m-d H:i:s');
+	    try {
+	        $this->updated_at = $now;
+	    } catch (UndefinedPropertyException $e) {
 
-		if (isset($this->updated_at))
-			$this->updated_at = $now;
+	    }
+	    try {
+	        if($this->is_new_record()) {
+	            $this->created_at = $now;
+	        }
+	    } catch (UndefinedPropertyException $e) {
+	    }
 
-		if (isset($this->created_at) && $this->is_new_record())
-			$this->created_at = $now;
 	}
 
 	/**
