@@ -5,9 +5,12 @@
 namespace ActiveRecord;
 
 /**
- * Adapter for Google Fusion Tables.
+ * Adapter for Google Fusion Tables (work in progress)
+ * Uses code from http://code.google.com/p/fusion-tables-client-php/ (class ClientLogin and FTClientLogin)
  *
  * @package ActiveRecord
+ * @author Martijn Durnez
+ *
  */
 
 class FusionAdapter extends Connection
@@ -32,7 +35,8 @@ class FusionAdapter extends Connection
 				$sql = substr_replace($sql, " ".$val . " ", strpos($sql, '?'), 1);
 			}
 		}
-		//fusion tables doesn't include the primary_key (rowid) in queries if not specified.Need it for updates
+		//fusion tables doesn't include the primary_key (rowid) in queries if not specified.Need it for updates so we 			
+		//add it anyway
 		if(is_numeric(stripos($sql, 'SELECT * FROM'))) {
 			$cols = $this->columns($this->table);
 			$select = implode('`, `', array_keys($cols));
@@ -73,6 +77,7 @@ class FusionAdapter extends Connection
 			$c = $this->create_column($row);
 			$columns[$c->name] = $c;
 		}
+		//add the rowid column because Fusion Tables doesn't include it by default
 		$row = array('name' => 'rowid', 'type' => 'integer', 'pk' => true, 'auto_increment' => true);
 		$columns['rowid'] = $this->create_column($row);
 		self::set_cache($table, $columns);
