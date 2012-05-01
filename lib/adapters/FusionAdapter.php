@@ -10,9 +10,7 @@ namespace ActiveRecord;
  *
  * @package ActiveRecord
  * @author Martijn Durnez
- *
  */
-
 class FusionAdapter extends Connection
 {
 	private static $token;
@@ -20,13 +18,15 @@ class FusionAdapter extends Connection
 	private $called_class;
 	private $last_result;
 	
-	public function __construct($info) {
+	public function __construct($info) 
+	{
 		self::$token = ClientLogin::getAuthToken($info->user, $info->pass);
 		$this->connection = new FTClientLogin(self::$token);
 		Model::$primary_key = 'rowid';
 	}
 	
-	public function query($sql, &$values=array()) {
+	public function query($sql, &$values=array()) 
+	{
 		$this->last_query = $sql;
 		if(!empty($values)) {
 			//Fusion Tables doesn't accept parameterized query
@@ -93,7 +93,6 @@ class FusionAdapter extends Connection
 	public function insert_id($sequence=null)
 	{
 		$result = $this->last_result->fetch();
-		
 		return (int) $result['rowid'];
 		
 	}
@@ -138,12 +137,14 @@ class FusionAdapter extends Connection
 	 * 
 	 */
 	
-	protected static function set_cache($key,$value) {
+	protected static function set_cache($key,$value) 
+	{
 		$class = get_called_class();
 		$_SESSION[$class][$key] = serialize($value);
 	}
 	
-	protected static function get_cache_value($key) {
+	protected static function get_cache_value($key) 
+	{
 		$class = get_called_class();
 		if(self::cache_exists($key)) {
 			return unserialize($_SESSION[$class][$key]);
@@ -152,7 +153,9 @@ class FusionAdapter extends Connection
 		}
 		
 	}
-	protected static function cache_exists($key) {
+	
+	protected static function cache_exists($key) 
+	{
 		$class = get_called_class();
 		return isset($_SESSION[$class][$key]);
 	}
@@ -168,7 +171,8 @@ define('GOOGLE_OAUTH_ACCESS_TOKEN_API', 'https://www.google.com/accounts/OAuthGe
 define('GOOGLE_OAUTH_AUTHORIZE_API', 'https://www.google.com/accounts/OAuthAuthorizeToken');
 
 class ClientLogin extends FusionAdapter {
-	public static function getAuthToken($username, $password) {
+	public static function getAuthToken($username, $password) 
+	{
 		if($token = self::get_cache_value('token')) {
 			return $token;
 		}
@@ -190,12 +194,14 @@ class ClientLogin extends FusionAdapter {
 
 
 class FTClientLogin {
-	function __construct($token) {
+	function __construct($token) 
+	{
 		$this->token = $token;
 		
 	}
 	
-	function query($query, $gsessionid = null, $recursedOnce = false) {
+	function query($query, $gsessionid = null, $recursedOnce = false) 
+	{
 
 		$url = URL;
 		$query =  "sql=".urlencode($query);
@@ -254,24 +260,28 @@ class FTClientLogin {
  *  - so it can respond to fetch() requests elsewhere in PHPActiveRecord
  */
 
-class FusionResult extends \ArrayIterator {
+class FusionResult extends \ArrayIterator 
+{
 	
 	private $array;
 	
-	public function __construct($csv ) {
+	public function __construct($csv ) 
+	{
 		$array = self::csv_to_array($csv);
 		parent::__construct( $array );
 		$this->array = $array;
 	}
 	
-	public function fetch() {
+	public function fetch() 
+	{
 		$current = $this->current();
 		$this->next();
 		return $current;
 		
 	}
 	
-	private static function csv_to_array($csv, $assoc = true) {
+	private static function csv_to_array($csv, $assoc = true) 
+	{
 		$rows = explode("\n", trim($csv));
 		$array = array();
 		foreach($rows as $row) {
@@ -282,7 +292,8 @@ class FusionResult extends \ArrayIterator {
 		}
 		return $array;
 	}
-	private static function array_to_assoc($array) {
+	private static function array_to_assoc($array) 
+	{
 		$columns = $array[0];
 		$assoc = array();
 		unset($array[0]);
